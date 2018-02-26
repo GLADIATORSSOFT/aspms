@@ -1,0 +1,269 @@
+
+
+CREATE TABLE Countries(
+Country_Id INT NOT NULL AUTO_INCREMENT,
+Country_Name VARCHAR (100) NOT NULL,
+Country_Abbr VARCHAR(10),
+PRIMARY KEY (Country_Id));
+
+CREATE TABLE State(
+	State_ID INT NOT NULL AUTO_INCREMENT,
+	State_Name VARCHAR(100) NULL,
+	Country_ID INT NOT NULL,
+	PRIMARY KEY (State_ID)
+);
+
+ALTER TABLE State ADD CONSTRAINT state_ibfk_country
+	FOREIGN KEY (`Country_ID`) REFERENCES `Countries` (`Country_ID`);
+
+CREATE TABLE City(
+	City_ID INT NOT NULL AUTO_INCREMENT,
+	City_Name VARCHAR(100) NULL,
+	State_ID INT NOT NULL,
+	PRIMARY KEY (CITY_ID)
+);
+
+ALTER TABLE City ADD CONSTRAINT city_ibfk_state
+	FOREIGN KEY (`State_ID`) REFERENCES `State` (`State_ID`);
+
+
+CREATE TABLE Clients(
+	Client_ID INT NOT NULL AUTO_INCREMENT,
+	Client_Name VARCHAR(100) NULL,
+	Address VARCHAR(500) NULL,
+	Phone VARCHAR(100) NULL,
+	Client_Status ENUM('A', 'I')  NULL,
+	City_ID INT NULL,
+	Def_Distributor_Margin FLOAT NULL,
+	Created_On DATETIME,
+        Created_By INT NULL,
+        Updated_On DATETIME NULL,
+        Updated_By INT NULL,
+	PRIMARY KEY (Client_ID));
+
+ALTER TABLE Clients ADD CONSTRAINT client_ibfk_city
+	FOREIGN KEY (`City_ID`) REFERENCES `City` (`City_ID`);
+	
+
+
+CREATE TABLE Town(
+	Town_ID INT NOT NULL AUTO_INCREMENT,
+	Town_Name VARCHAR(100) NOT NULL,
+	Town_Code VARCHAR(50) NULL,
+	Town_Status ENUM('A', 'I')  NULL,
+	Created_On DATETIME,
+        Created_By INT NULL,
+        Updated_On DATETIME NULL,
+        Updated_By INT NULL,
+	PRIMARY KEY (TOWN_ID));
+ALTER TABLE Town ADD COLUMN City_ID INT NULL;
+	
+ALTER TABLE Town ADD CONSTRAINT town_ibfk_city
+	FOREIGN KEY (`City_ID`) REFERENCES `City` (`City_ID`);
+
+
+
+CREATE TABLE Customer_Type(
+	Customer_Type_Id INT NOT NULL AUTO_INCREMENT,
+	Customer_Type_Code VARCHAR(10) NOT NULL,
+	Customer_Type VARCHAR (50) NULL,
+	PRIMARY KEY (Customer_Type_Id));
+
+CREATE TABLE `Brand` (
+  
+`Brand_Id` INT(11) NOT NULL AUTO_INCREMENT,
+  
+`Brand_Name` VARCHAR(500) NOT NULL,
+  
+`Is_Home_Brand` VARCHAR(1) DEFAULT NULL,
+  
+`Brand_Status` ENUM('A','I') DEFAULT NULL,
+ 
+ Created_On DATETIME,
+ Created_By INT NULL,
+ Updated_On DATETIME NULL,
+ Updated_By INT NULL,
+ PRIMARY KEY (`Brand_Id`)
+);
+
+
+CREATE TABLE Items(
+	Item_ID INT NOT NULL AUTO_INCREMENT,
+	Brand_Id INT NOT NULL,
+	ItemDesc VARCHAR(100) NOT NULL,
+	ItemPacking VARCHAR(50) NOT NULL,
+	Trade_Price FLOAT NULL,
+	Distributor_Margin FLOAT NULL,
+	Distributor_Price FLOAT NULL,
+	Retail_Price FLOAT NULL,
+	Item_Status ENUM('A', 'I')  NULL,
+        Created_On DATETIME,
+        Created_By INT NULL,
+        Updated_On DATETIME NULL,
+        Updated_By INT NULL,
+	PRIMARY KEY (Item_ID));
+	
+	ALTER TABLE Items ADD CONSTRAINT items_ibfk_brand 
+	FOREIGN KEY (`Brand_Id`) REFERENCES `Brand` (`Brand_Id`);
+
+
+
+
+CREATE TABLE Customers(
+	Customer_ID INT NOT NULL AUTO_INCREMENT,
+	Customer_Name VARCHAR(100) NULL,
+	Address VARCHAR(500) NULL,
+	Phone VARCHAR(100) NULL,
+	Customer_Status ENUM('A', 'I')  NULL,
+	Customer_Type_Id INT NULL,
+	Client_ID INT NULL,
+	Customer_Margin FLOAT NULL,
+        Created_On DATETIME,
+        Created_By INT NULL,
+        Updated_On DATETIME NULL,
+        Updated_By INT NULL,
+	PRIMARY KEY (Customer_ID));
+	
+
+	
+ALTER TABLE Customers ADD CONSTRAINT customer_ibfk_customertype
+	FOREIGN KEY (`Customer_Type_Id`) REFERENCES `Customer_Type` (`Customer_Type_Id`);
+
+ALTER TABLE Customers ADD CONSTRAINT customer_ibfk_client
+	FOREIGN KEY (`Client_ID`) REFERENCES `Clients` (`Client_ID`);
+	
+
+ALTER TABLE Customers ADD COLUMN City_ID INT NULL;
+	
+ALTER TABLE Customers ADD CONSTRAINT customer_ibfk_city
+	FOREIGN KEY (`City_ID`) REFERENCES `City` (`City_ID`);
+
+CREATE TABLE Retailers(
+	Retailer_ID INT NOT NULL AUTO_INCREMENT,
+	Retailer_Name VARCHAR(100) NULL,
+	Address VARCHAR(500) NULL,
+	Phone VARCHAR(100) NULL,
+	Retailer_Status ENUM('A', 'I')  NULL,
+        Client_ID INT NULL,
+	Town_ID INT NULL,
+	Created_On DATETIME,
+        Created_By INT NULL,
+        Updated_On DATETIME NULL,
+        Updated_By INT NULL,
+	PRIMARY KEY (Retailer_ID));
+	
+ALTER TABLE Retailers ADD CONSTRAINT retailer_ibfk_town
+	FOREIGN KEY (`Town_ID`) REFERENCES `Town` (`Town_ID`);
+
+
+ALTER TABLE Retailers ADD CONSTRAINT retailer_ibfk_client
+	FOREIGN KEY (`Client_ID`) REFERENCES `Clients` (`Client_ID`);	
+
+
+
+CREATE TABLE Sale(
+	Sale_ID VARCHAR(100)NOT NULL,
+	Sale_Date DATE,
+	Client_ID INT,
+	Customer_ID INT,
+        Created_On DATETIME,
+        Created_By INT NULL,
+        Updated_On DATETIME NULL,
+        Updated_By INT NULL,
+	PRIMARY KEY (Sale_ID));
+	
+ALTER TABLE Sale ADD CONSTRAINT sale_ibfk_client
+	FOREIGN KEY (`Client_ID`) REFERENCES `Clients` (`Client_ID`);
+	
+	
+	
+ALTER TABLE Sale ADD CONSTRAINT sale_ibfk_customer
+	FOREIGN KEY (`Customer_ID`) REFERENCES `Customers` (`Customer_ID`);
+
+
+
+CREATE TABLE Groups(
+Group_ID INT NOT NULL AUTO_INCREMENT,	
+Group_Name VARCHAR(50),
+Group_Abbr VARCHAR(10),
+Created_On DATETIME,
+Created_By INT NULL,
+Updated_On DATETIME NULL,
+Updated_By INT NULL,
+PRIMARY KEY (Group_ID ));
+
+ALTER TABLE Items ADD COLUMN Group_ID INT;
+ALTER TABLE Items ADD CONSTRAINT items_ibfk_group
+	FOREIGN KEY (`Group_ID`) REFERENCES `Groups` (`Group_ID`);
+
+ALTER TABLE Items ADD COLUMN Client_ID INT;
+ALTER TABLE Items ADD CONSTRAINT items_ibfk_client
+	FOREIGN KEY (`Client_ID`) REFERENCES `Clients` (`Client_ID`);
+
+ALTER TABLE ITEMS ADD COLUMN GST_Applicable TINYINT NULL;
+ALTER TABLE ITEMS ADD COLUMN Additional_GST_Applicable TINYINT NULL;
+
+ALTER TABLE Sale ADD COLUMN Sale_Value FLOAT NULL;
+ALTER TABLE Sale ADD COLUMN Return_Value FLOAT NULL;
+ALTER TABLE Sale ADD COLUMN Net_Sale FLOAT NULL;
+ALTER TABLE Sale ADD COLUMN Bonus_Value FLOAT NULL;
+
+CREATE TABLE SaleDesc(
+	Sale_Desc_ID VARCHAR(100)NOT NULL,
+	Retailer_ID INT NULL,
+	Item_ID INT NULL,
+	Sale_ID VARCHAR(100) NULL,
+	Qty 	INT NULL,
+	Return_Qty INT NULL,
+	Bonus_Qty  INT NULL,
+	Sale_Value FLOAT NULL,
+	Return_Value FLOAT NULL,
+	Net_Sale FLOAT NULL,
+	Tax_Value FLOAT NULL,
+        Created_On DATETIME,
+        Created_By INT NULL,
+        Updated_On DATETIME NULL,
+        Updated_By INT NULL,
+	PRIMARY KEY (Sale_Desc_ID));
+
+ALTER TABLE SaleDesc ADD CONSTRAINT saledesc_ibfk_sale
+	FOREIGN KEY (`Sale_ID`) REFERENCES `Sale` (`Sale_ID`);
+ALTER TABLE SaleDesc ADD CONSTRAINT saledesc_ibfk_retailer
+	FOREIGN KEY (`Retailer_ID`) REFERENCES `Retailers` (`Retailer_ID`);
+ALTER TABLE SaleDesc ADD CONSTRAINT saledesc_ibfk_item
+	FOREIGN KEY (`Item_ID`) REFERENCES `Items` (`Item_ID`);
+	
+	
+
+CREATE TABLE Roles (
+	Role_ID INT NOT NULL AUTO_INCREMENT,
+	Role_Name VARCHAR(100) NULL,
+	Role_Abbr VARCHAR(15) NULL,
+	Created_On DATETIME,
+        Created_By INT NULL,
+        Updated_On DATETIME NULL,
+        Updated_By INT NULL,
+	PRIMARY KEY (Role_ID));
+
+INSERT INTO Roles VALUES(1,'Super User','Super',CURDATE(),0,CURDATE(),0);
+INSERT INTO Roles VALUES(2,'Administrator','Admin',CURDATE(),0,CURDATE(),0);
+INSERT INTO Roles VALUES(3,'Operator','Opr',CURDATE(),0,CURDATE(),0);
+INSERT INTO Roles VALUES(4,'External Opertor','Ex Opr',CURDATE(),0,CURDATE(),0);
+
+CREATE TABLE Users(
+User_ID INT NOT NULL AUTO_INCREMENT,
+User_Email VARCHAR(250) NOT NULL,
+User_Password VARCHAR(100) NOT NULL,
+Role_ID INT NOT NULL,
+Created_On DATETIME,
+Created_By INT NULL,
+Updated_On DATETIME NULL,
+Updated_By INT NULL,
+PRIMARY KEY (User_ID));
+
+ALTER TABLE Users ADD CONSTRAINT user_ibfk_role
+	FOREIGN KEY (`Role_ID`) REFERENCES `Roles` (`Role_ID`);
+
+
+
+
